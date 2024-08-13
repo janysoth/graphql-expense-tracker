@@ -1,4 +1,4 @@
-import { users } from '../dummyData/data.js';
+import { users } from "../dummyData/data.js";
 
 const userResolver = {
   Query: {
@@ -6,7 +6,7 @@ const userResolver = {
       return users;
     }
   },
-  // Mutations: {}
+  Mutation: {},
 };
 
 export default userResolver;

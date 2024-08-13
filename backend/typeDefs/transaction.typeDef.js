@@ -36,9 +36,10 @@ const transactionTypeDef = `#graphql
     paymentType: String
     category: String
     amount: Float
-    location: String
     date: String
+    location: String
   }
+
 `;
 
 export default transactionTypeDef;

@@ -1,3 +1,4 @@
+// User Schema
 const userTypeDef = `#graphql
   type User {
     _id: ID!
