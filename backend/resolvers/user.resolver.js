@@ -1,4 +1,3 @@
-import { users } from "../dummyData/data.js";
 import User from "../models/user.model.js";
 import bcrypt from 'bcryptjs';
 
@@ -81,7 +80,17 @@ const userResolver = {
         console.error("Error in authUser: , err");
         throw new Error("Internal Server Error");
       }
-    }, // End of authUser
+    }, // End of authUser query
+
+    user: async (_, { userId }) => {
+      try {
+        const user = await User.findById(userId);
+        return user;
+      } catch (err) {
+        console.error("Error in user query: ", err);
+        throw new Error(err.message || "Error in getting user");
+      }
+    }, // End of user query
   }
 };
 
