@@ -40,6 +40,20 @@ const userResolver = {
       }
     }, // End of signUp 
 
+    login: async (_, { input }, context) => {
+      try {
+        const { username, password } = input;
+        if (!username || !password) throw new Error("All Fields are required.");
+
+        const { user } = await context.authenticate("graphql-local", { username, password });
+
+        await context.login(user);
+        return user;
+      } catch (err) {
+        console.error("Error in login:", err);
+        throw new Error(err.message || "Internal Server Error");
+      }
+    }, // End of login
 
   },
   Query: {
