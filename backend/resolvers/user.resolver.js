@@ -91,7 +91,9 @@ const userResolver = {
         throw new Error(err.message || "Error in getting user");
       }
     }, // End of user query
-  }
+  },
+
+  // TODO => ADD USER/TRANSACTION RELATIONSHIP
 };
 
 export default userResolver;
