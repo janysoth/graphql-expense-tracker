@@ -30,7 +30,7 @@ export const UPDATE_TRANSACTION = gql`
 
 export const DELETE_TRANSACTION = gql`
   mutation DeleteTransaction($transactionId: ID!) {
-    deleteTransaction(transactionID: $transactionId) {
+    deleteTransaction(transactionId: $transactionId) {
     _id
     description
     paymentType
