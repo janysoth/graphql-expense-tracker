@@ -16,7 +16,7 @@ export const GET_TRANSACTIONS = gql`
 
 export const GET_TRANSACTION = gql`
   query GetTransaction($id: ID!) {
-    transaction(transactionID: $id) {
+    transaction(transactionId: $id) {
       _id
       description
       paymentType
@@ -24,11 +24,6 @@ export const GET_TRANSACTION = gql`
       amount
       location
       date
-      user {
-        name
-        username
-        profilePicture
-      }
     }
   }
 `;

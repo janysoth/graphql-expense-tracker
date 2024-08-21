@@ -1,6 +1,17 @@
-import { useState } from "react";
+import { useQuery } from "@apollo/client";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { GET_TRANSACTION } from "../../graphql/queries/transaction.query";
+import TransactionFormSkeleton from '../components/skeletons/TransactionFromSkeleton';
 
 const TransactionPage = () => {
+  const { id } = useParams();
+  const { data, loading } = useQuery(GET_TRANSACTION, {
+    variables: { id: id },
+  });
+
+  console.log("Transaction data: ", data);
+
   const [formData, setFormData] = useState({
     description: "",
     paymentType: "",
@@ -22,7 +33,20 @@ const TransactionPage = () => {
     }));
   };
 
-  // if (loading) return <TransactionFormSkeleton />;
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        description: data?.transaction?.description,
+        paymentType: data?.transaction?.paymentType,
+        category: data?.transaction?.category,
+        amount: data?.transaction?.amount,
+        location: data?.transaction?.location,
+        date: new Date(+data.transaction.date).toISOString().substr(0, 10)
+      });
+    }
+  }, [data]);
+
+  if (loading) return <TransactionFormSkeleton />;
 
   return (
     <div className='h-screen max-w-4xl mx-auto flex flex-col items-center'>
