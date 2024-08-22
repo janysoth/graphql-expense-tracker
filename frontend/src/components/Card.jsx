@@ -10,6 +10,7 @@ import { formatDate } from "../utils/formatDate";
 import toast from 'react-hot-toast';
 import { useMutation } from '@apollo/client';
 import { DELETE_TRANSACTION } from '../../graphql/mutations/transaction.mutation';
+import { formatAmount } from "../utils/formatAmount";
 
 const categoryColorMap = {
   saving: "from-green-700 to-green-400",
@@ -65,7 +66,7 @@ const Card = ({ transaction }) => {
         </p>
         <p className='text-white flex items-center gap-1'>
           <FaSackDollar />
-          Amount: ${amount}
+          Amount: {formatAmount(amount)}
         </p>
         <p className='text-white flex items-center gap-1'>
           <FaLocationDot />

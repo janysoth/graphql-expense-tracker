@@ -1,8 +1,10 @@
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { GET_TRANSACTION } from "../../graphql/queries/transaction.query";
 import TransactionFormSkeleton from '../components/skeletons/TransactionFromSkeleton';
+import { UPDATE_TRANSACTION } from "../../graphql/mutations/transaction.mutation";
+import toast from 'react-hot-toast';
 
 const TransactionPage = () => {
   const { id } = useParams();
@@ -10,7 +12,7 @@ const TransactionPage = () => {
     variables: { id: id },
   });
 
-  console.log("Transaction data: ", data);
+  const [updateTransaction, { loading: loadingUpdate }] = useMutation(UPDATE_TRANSACTION);
 
   const [formData, setFormData] = useState({
     description: "",
@@ -23,8 +25,25 @@ const TransactionPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("formData", formData);
+
+    // Convert amount into number (return data is string)
+    const amount = parseFloat(formData.amount);
+    try {
+      await updateTransaction({
+        variables: {
+          input: {
+            ...formData,
+            amount,
+            transactionId: id,
+          }
+        }
+      });
+      toast.success("Transaction updated successfully.");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
@@ -200,8 +219,9 @@ const TransactionPage = () => {
           className='text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
           from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600'
           type='submit'
+          disabled={loadingUpdate}
         >
-          Update Transaction
+          {loadingUpdate ? "Updating..." : "Update Transaction"}
         </button>
       </form>
     </div>
