@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { formatDate } from "../utils/formatDate";
 import toast from 'react-hot-toast';
 import { useMutation } from '@apollo/client';
-import { DELETE_TRANSACTION } from '../../graphql/mutations/transaction.mutation';
+import { DELETE_TRANSACTION } from '../graphql/mutations/transaction.mutation';
 import { formatAmount } from "../utils/formatAmount";
 
 const categoryColorMap = {
