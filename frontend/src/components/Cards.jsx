@@ -5,8 +5,6 @@ import { GET_TRANSACTIONS } from "../graphql/queries/transaction.query";
 const Cards = () => {
   const { data, loading } = useQuery(GET_TRANSACTIONS);
 
-  console.log("cards:", data);
-
   // TODO => ADD RELATIONSHIP
   return (
     <div className='w-full px-10 min-h-[40vh]'>
