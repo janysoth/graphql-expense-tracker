@@ -47,7 +47,7 @@ const HomePage = () => {
         borderWidth: 1,
         borderRadius: 30,
         spacing: 10,
-        cutout: 130,
+        cutout: 120,
       },
     ],
   });
