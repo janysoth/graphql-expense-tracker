@@ -2,12 +2,12 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
-import TransactionPage from './pages/TransationPage';
+import TransactionPage from './pages/TransactionPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/ui/Header';
 import { useQuery } from '@apollo/client';
-import { GET_AUTHENTICATED_USER } from '../graphql/queries/user.query';
 import { Toaster } from 'react-hot-toast';
+import { GET_AUTHENTICATED_USER } from './graphql/queries/user.query';
 
 function App() {
   const { loading, data } = useQuery(GET_AUTHENTICATED_USER);
