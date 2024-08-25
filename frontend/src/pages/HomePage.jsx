@@ -64,14 +64,17 @@ const HomePage = () => {
 
       categories.forEach((category) => {
         if (category === "saving") {
-          backgroundColors.push("rgba(75, 192, 192)");
-          borderColors.push("rgba(75, 192, 192)");
+          backgroundColors.push("rgba(63, 122, 233, 1)");
+          borderColors.push("rgba(63, 122, 233, 1)");
         } else if (category === "expense") {
           backgroundColors.push("rgba(255, 99, 132)");
           borderColors.push("rgba(255, 99, 132)");
         } else if (category === "investment") {
           backgroundColors.push("rgba(54, 162, 235)");
           borderColors.push("rgba(54, 162, 235)");
+        } else if (category === "income") {
+          backgroundColors.push("rgba(28, 166, 120, 1)");
+          borderColors.push("rgba(28, 166, 120, 1)");
         }
       });
 

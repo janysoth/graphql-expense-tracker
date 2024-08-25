@@ -20,12 +20,12 @@ const TransactionPage = () => {
   });
 
   const [formData, setFormData] = useState({
-    description: "",
-    paymentType: "",
-    category: "",
-    amount: "",
-    location: "",
-    date: "",
+    description: data?.transaction?.description || "",
+    paymentType: data?.transaction?.paymentType || "",
+    category: data?.transaction?.category,
+    amount: data?.transaction?.amount || "",
+    location: data?.transaction?.location || "",
+    date: data?.transaction?.date || "",
   });
 
   const handleSubmit = async (e) => {
@@ -150,6 +150,7 @@ const TransactionPage = () => {
                 <option value={"saving"}>Saving</option>
                 <option value={"expense"}>Expense</option>
                 <option value={"investment"}>Investment</option>
+                <option value={"income"}>Income</option>
               </select>
               <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
                 <svg
