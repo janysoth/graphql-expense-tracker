@@ -56,23 +56,26 @@ const HomePage = () => {
 
   useEffect(() => {
     if (data?.categoryStatistics) {
-      const categories = data.categoryStatistics.map((stat) => stat.category);
+      const categories = data.categoryStatistics.map((stat) => {
+        return stat.category.charAt(0).toUpperCase() + stat.category.slice(1);
+      });
+
       const totalAmounts = data.categoryStatistics.map((stat) => stat.totalAmount);
 
       const backgroundColors = [];
       const borderColors = [];
 
       categories.forEach((category) => {
-        if (category === "saving") {
+        if (category.toLowerCase() === "saving") {
           backgroundColors.push("rgba(63, 122, 233, 1)");
           borderColors.push("rgba(63, 122, 233, 1)");
-        } else if (category === "expense") {
+        } else if (category.toLowerCase() === "expense") {
           backgroundColors.push("rgba(255, 99, 132)");
           borderColors.push("rgba(255, 99, 132)");
-        } else if (category === "investment") {
+        } else if (category.toLowerCase() === "investment") {
           backgroundColors.push("rgba(54, 162, 235)");
           borderColors.push("rgba(54, 162, 235)");
-        } else if (category === "income") {
+        } else if (category.toLowerCase() === "income") {
           backgroundColors.push("rgba(28, 166, 120, 1)");
           borderColors.push("rgba(28, 166, 120, 1)");
         }
