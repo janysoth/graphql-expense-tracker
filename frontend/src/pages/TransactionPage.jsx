@@ -9,39 +9,55 @@ import toast from 'react-hot-toast';
 const TransactionPage = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
   const { data, loading } = useQuery(GET_TRANSACTION, {
-    variables: { id: id },
-  });
-
-  console.log("Transaction: ", data);
-
-  const [updateTransaction, { loading: loadingUpdate }] = useMutation(UPDATE_TRANSACTION, {
-    refetchQueries: ["GetTransactions", "GetTransactionStatistics"]
+    variables: { id },
   });
 
   const [formData, setFormData] = useState({
-    description: data?.transaction?.description || "",
-    paymentType: data?.transaction?.paymentType || "",
-    category: data?.transaction?.category,
-    amount: data?.transaction?.amount || "",
-    location: data?.transaction?.location || "",
-    date: data?.transaction?.date || "",
+    description: "",
+    paymentType: "",
+    category: "",
+    amount: "",
+    location: "",
+    date: "",
   });
+
+  useEffect(() => {
+    if (data?.transaction) {
+      const { description, paymentType, category, amount, location, date } = data.transaction;
+      setFormData({
+        description,
+        paymentType,
+        category,
+        amount,
+        location,
+        date: new Date(+date).toISOString().split("T")[0],
+      });
+    }
+  }, [data]);
+
+  const [updateTransaction, { loading: loadingUpdate }] = useMutation(UPDATE_TRANSACTION, {
+    refetchQueries: ["GetTransactions", "GetTransactionStatistics"],
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Convert amount into number (return data is string)
     const amount = parseFloat(formData.amount);
+
     try {
       await updateTransaction({
         variables: {
-          input: {
-            ...formData,
-            amount,
-            transactionId: id,
-          }
-        }
+          input: { ...formData, amount, transactionId: id },
+        },
       });
       toast.success("Transaction updated successfully.");
       navigate("/");
@@ -50,27 +66,6 @@ const TransactionPage = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [name]: value,
-    }));
-  };
-
-  useEffect(() => {
-    if (data) {
-      setFormData({
-        description: data?.transaction?.description,
-        paymentType: data?.transaction?.paymentType,
-        category: data?.transaction?.category,
-        amount: data?.transaction?.amount,
-        location: data?.transaction?.location,
-        date: new Date(+data.transaction.date).toISOString().substr(0, 10)
-      });
-    }
-  }, [data]);
-
   if (loading) return <TransactionFormSkeleton />;
 
   return (
@@ -78,14 +73,10 @@ const TransactionPage = () => {
       <p className='md:text-4xl text-2xl lg:text-4xl font-bold text-center relative z-50 mb-4 mr-4 bg-gradient-to-r from-pink-600 via-indigo-500 to-pink-400 inline-block text-transparent bg-clip-text'>
         Update this transaction
       </p>
-      <form className='w-full max-w-lg flex flex-col gap-5 px-3 ' onSubmit={handleSubmit}>
-        {/* TRANSACTION */}
+      <form className='w-full max-w-lg flex flex-col gap-5 px-3' onSubmit={handleSubmit}>
         <div className='flex flex-wrap'>
           <div className='w-full'>
-            <label
-              className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-              htmlFor='description'
-            >
+            <label htmlFor='description' className='block uppercase tracking-wide text-white text-xs font-bold mb-2'>
               Transaction
             </label>
             <input
@@ -99,13 +90,10 @@ const TransactionPage = () => {
             />
           </div>
         </div>
-        {/* PAYMENT TYPE */}
+
         <div className='flex flex-wrap gap-3'>
-          <div className='w-full flex-1 mb-6 md:mb-0'>
-            <label
-              className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-              htmlFor='paymentType'
-            >
+          <div className='w-full flex-1'>
+            <label htmlFor='paymentType' className='block uppercase tracking-wide text-white text-xs font-bold mb-2'>
               Payment Type
             </label>
             <div className='relative'>
@@ -113,30 +101,22 @@ const TransactionPage = () => {
                 className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
                 id='paymentType'
                 name='paymentType'
+                value={formData.paymentType}
                 onChange={handleInputChange}
-                defaultValue={formData.paymentType}
               >
-                <option value={"card"}>Card</option>
-                <option value={"cash"}>Cash</option>
+                <option value="card">Card</option>
+                <option value="cash">Cash</option>
               </select>
               <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-                <svg
-                  className='fill-current h-4 w-4'
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 20 20'
-                >
+                <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
                   <path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
                 </svg>
               </div>
             </div>
           </div>
 
-          {/* CATEGORY */}
-          <div className='w-full flex-1 mb-6 md:mb-0'>
-            <label
-              className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-              htmlFor='category'
-            >
+          <div className='w-full flex-1'>
+            <label htmlFor='category' className='block uppercase tracking-wide text-white text-xs font-bold mb-2'>
               Category
             </label>
             <div className='relative'>
@@ -144,30 +124,25 @@ const TransactionPage = () => {
                 className='block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
                 id='category'
                 name='category'
+                value={formData.category}
                 onChange={handleInputChange}
-                defaultValue={formData.category}
               >
-                <option value={"saving"}>Saving</option>
-                <option value={"expense"}>Expense</option>
-                <option value={"investment"}>Investment</option>
-                <option value={"income"}>Income</option>
+                <option value="saving">Saving</option>
+                <option value="expense">Expense</option>
+                <option value="investment">Investment</option>
+                <option value="income">Income</option>
               </select>
               <div className='pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700'>
-                <svg
-                  className='fill-current h-4 w-4'
-                  xmlns='http://www.w3.org/2000/svg'
-                  viewBox='0 0 20 20'
-                >
+                <svg className='fill-current h-4 w-4' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
                   <path d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z' />
                 </svg>
               </div>
             </div>
           </div>
 
-          {/* AMOUNT */}
-          <div className='w-full flex-1 mb-6 md:mb-0'>
-            <label className='block uppercase text-white text-xs font-bold mb-2' htmlFor='amount'>
-              Amount($)
+          <div className='w-full flex-1'>
+            <label htmlFor='amount' className='block uppercase text-white text-xs font-bold mb-2'>
+              Amount ($)
             </label>
             <input
               className='appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500'
@@ -181,17 +156,13 @@ const TransactionPage = () => {
           </div>
         </div>
 
-        {/* LOCATION */}
         <div className='flex flex-wrap gap-3'>
-          <div className='w-full flex-1 mb-6 md:mb-0'>
-            <label
-              className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-              htmlFor='location'
-            >
+          <div className='w-full flex-1'>
+            <label htmlFor='location' className='block uppercase tracking-wide text-white text-xs font-bold mb-2'>
               Location
             </label>
             <input
-              className='appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white'
+              className='appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white'
               id='location'
               name='location'
               type='text'
@@ -201,32 +172,26 @@ const TransactionPage = () => {
             />
           </div>
 
-          {/* DATE */}
           <div className='w-full flex-1'>
-            <label
-              className='block uppercase tracking-wide text-white text-xs font-bold mb-2'
-              htmlFor='date'
-            >
+            <label htmlFor='date' className='block uppercase tracking-wide text-white text-xs font-bold mb-2'>
               Date
             </label>
             <input
               type='date'
               name='date'
               id='date'
-              className='appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none
-						 focus:bg-white'
+              className='appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-[11px] px-4 mb-3 leading-tight focus:outline-none focus:bg-white'
               placeholder='Select date'
               value={formData.date}
               onChange={handleInputChange}
             />
           </div>
         </div>
-        {/* SUBMIT BUTTON */}
+
         <button
-          className='text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br
-          from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600'
           type='submit'
           disabled={loadingUpdate}
+          className='text-white font-bold w-full rounded px-4 py-2 bg-gradient-to-br from-pink-500 to-pink-500 hover:from-pink-600 hover:to-pink-600'
         >
           {loadingUpdate ? "Updating..." : "Update Transaction"}
         </button>
@@ -234,4 +199,5 @@ const TransactionPage = () => {
     </div>
   );
 };
+
 export default TransactionPage;
