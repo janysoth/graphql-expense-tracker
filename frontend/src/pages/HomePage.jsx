@@ -1,5 +1,6 @@
 import { Doughnut } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 import Cards from "../components/Cards";
 import TransactionForm from "../components/TransactionForm";
@@ -12,7 +13,7 @@ import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query
 import { useEffect, useState } from "react";
 import { GET_AUTHENTICATED_USER } from "../graphql/queries/user.query";
 
-ChartJS.register(ArcElement, Tooltip, Legend);
+ChartJS.register(ArcElement, Tooltip, Legend, ChartDataLabels);
 
 const HomePage = () => {
   const { data } = useQuery(GET_TRANSACTION_STATISTICS);
@@ -32,7 +33,7 @@ const HomePage = () => {
         data: [],
         backgroundColor: [],
         borderColor: [],
-        borderWidth: 1,
+        borderWidth: 4,
         borderRadius: 30,
         spacing: 10,
         cutout: 120,
@@ -74,6 +75,14 @@ const HomePage = () => {
               data: totalAmounts,
               backgroundColor: backgroundColors,
               borderColor: borderColors,
+              datalabels: {
+                color: "#fff", // Label color
+                formatter: (value) => `$${value}`, // Format to display as amount
+                font: {
+                  weight: "bold",
+                  size: 14,
+                },
+              },
             },
           ],
         }));
