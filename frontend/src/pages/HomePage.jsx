@@ -12,27 +12,13 @@ import { GET_TRANSACTION_STATISTICS } from "../graphql/queries/transaction.query
 import { useEffect, useState } from "react";
 import { GET_AUTHENTICATED_USER } from "../graphql/queries/user.query";
 
-// const chartData = {
-//   labels: ["Saving", "Expense", "Investment"],
-//   datasets: [
-//     {
-//       label: "%",
-//       data: [13, 8, 3],
-//       backgroundColor: ["rgba(75, 192, 192)", "rgba(255, 99, 132)", "rgba(54, 162, 235)"],
-//       borderColor: ["rgba(75, 192, 192)", "rgba(255, 99, 132)", "rgba(54, 162, 235, 1)"],
-//       borderWidth: 1,
-//       borderRadius: 30,
-//       spacing: 10,
-//       cutout: 130,
-//     },
-//   ],
-// };
-
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const HomePage = () => {
   const { data } = useQuery(GET_TRANSACTION_STATISTICS);
-  const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER);
+  const { data: authUserData } = useQuery(GET_AUTHENTICATED_USER, {
+    fetchPolicy: "cache-first", // Use cache-first policy for better performance
+  });
 
   const [logout, { loading, client }] = useMutation(LOGOUT, {
     refetchQueries: ["GetAuthenticatedUser"],
@@ -56,53 +42,53 @@ const HomePage = () => {
 
   useEffect(() => {
     if (data?.categoryStatistics) {
-      const categories = data.categoryStatistics.map((stat) => {
-        return stat.category.charAt(0).toUpperCase() + stat.category.slice(1);
-      });
+      try {
+        const categories = data.categoryStatistics.map((stat) => {
+          return stat.category.charAt(0).toUpperCase() + stat.category.slice(1);
+        });
 
-      const totalAmounts = data.categoryStatistics.map((stat) => stat.totalAmount);
+        const totalAmounts = data.categoryStatistics.map((stat) => stat.totalAmount);
 
-      const backgroundColors = [];
-      const borderColors = [];
+        const colorMap = {
+          saving: "rgba(63, 122, 233, 1)",
+          expense: "rgba(255, 99, 132)",
+          investment: "rgba(54, 162, 235)",
+          income: "rgba(28, 166, 120, 1)",
+        };
 
-      categories.forEach((category) => {
-        if (category.toLowerCase() === "saving") {
-          backgroundColors.push("rgba(63, 122, 233, 1)");
-          borderColors.push("rgba(63, 122, 233, 1)");
-        } else if (category.toLowerCase() === "expense") {
-          backgroundColors.push("rgba(255, 99, 132)");
-          borderColors.push("rgba(255, 99, 132)");
-        } else if (category.toLowerCase() === "investment") {
-          backgroundColors.push("rgba(54, 162, 235)");
-          borderColors.push("rgba(54, 162, 235)");
-        } else if (category.toLowerCase() === "income") {
-          backgroundColors.push("rgba(28, 166, 120, 1)");
-          borderColors.push("rgba(28, 166, 120, 1)");
-        }
-      });
+        const backgroundColors = [];
+        const borderColors = [];
 
-      setChartData((prev) => ({
-        labels: categories,
-        datasets: [
-          {
-            ...prev.datasets[0],
-            data: totalAmounts,
-            backgroundColor: backgroundColors,
-            borderColor: borderColors,
-          },
-        ],
-      }));
+        categories.forEach((category) => {
+          const lowerCaseCategory = category.toLowerCase();
+          const defaultColor = "rgba(255, 165, 0, 1)"; // Vibrant orange for default
+          backgroundColors.push(colorMap[lowerCaseCategory] || defaultColor);
+          borderColors.push(colorMap[lowerCaseCategory] || defaultColor);
+        });
+
+        setChartData((prev) => ({
+          labels: categories,
+          datasets: [
+            {
+              ...prev.datasets[0],
+              data: totalAmounts,
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+            },
+          ],
+        }));
+      } catch (error) {
+        console.error("Error processing chart data: ", error);
+      }
     }
   }, [data]);
 
   const handleLogout = async () => {
     try {
       await logout();
-      // Clear the Apollo Client cache FROM THE DOCS
-      // https://www.apollographql.com/docs/react/caching/advanced-topics/#:~:text=Resetting%20the%20cache,any%20of%20your%20active%20queries
-      client.resetStore();
+      client.resetStore(); // Clear the Apollo Client cache
     } catch (error) {
-      console.error("Error in logging out: , error");
+      console.error("Error in logging out: ", error);
       toast.error(error.message);
     }
   };
@@ -119,13 +105,19 @@ const HomePage = () => {
             className='w-11 h-11 rounded-full border cursor-pointer'
             alt='Avatar'
           />
-          {!loading && <MdLogout className='mx-2 w-5 h-5 cursor-pointer' onClick={handleLogout} />}
+          {!loading && (
+            <MdLogout
+              className='mx-2 w-5 h-5 cursor-pointer'
+              onClick={handleLogout}
+              aria-label='Logout' // Added ARIA label for accessibility
+            />
+          )}
           {/* loading spinner */}
           {loading && <div className='w-6 h-6 border-t-2 border-b-2 mx-2 rounded-full animate-spin'></div>}
         </div>
         <div className='flex flex-wrap w-full justify-center items-center gap-6'>
           {data?.categoryStatistics.length > 0 && (
-            <div className='h-[330px] w-[330px] md:h-[360px] md:w-[360px]  '>
+            <div className='h-[330px] w-[330px] md:h-[360px] md:w-[360px]'>
               <Doughnut data={chartData} />
             </div>
           )}
@@ -137,4 +129,5 @@ const HomePage = () => {
     </>
   );
 };
+
 export default HomePage;
